@@ -15,5 +15,11 @@
   "bugs": {
     "url": "https://github.com/yimjaehyun/groupify/issues"
   },
-  "homepage": "https://github.com/yimjaehyun/groupify#readme"
+  "homepage": "https://github.com/yimjaehyun/groupify#readme",
+  "dependencies": {
+    "ejs": "^2.6.1",
+    "express": "^4.16.3",
+    "nodemon": "^1.18.4",
+    "spotify-web-api-node": "^3.1.1"
+  }
 }

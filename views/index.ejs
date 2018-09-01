@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Plaid Walkthrough Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+  <div id="banner">
+    Song Name: <input type="text" id="song-name" value="Shelter"><br>
+    Artist Name: <input type="text" id="artist-name" value="Porter Robinson"><br>
+    <button type="button" id="search-btn">search</button>
+  </div>
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+  <script>
+  (function($) {
+    $("#search-btn").click(function(){
+      $.post("/", {songName: $('#song-name').val(), artistName: $('#artist-name').val()}, function(data) {
+      });
+    });
+  })(jQuery);
+  </script>
+</body>
+</html>
