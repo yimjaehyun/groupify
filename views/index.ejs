@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Plaid Walkthrough Example</title>
+<title>Groupify</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
@@ -12,12 +12,30 @@
     <button type="button" id="search-btn">search</button>
   </div>
 
+  <h1>Search Results</h1>
+  <div id="search-result"></div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script>
   (function($) {
+
+
+
     $("#search-btn").click(function(){
       $.post("/", {songName: $('#song-name').val(), artistName: $('#artist-name').val()}, function(data) {
+        data.forEach(function(tracks) {
+          var songName = tracks.name;
+          var albumName = tracks.album.artists[0].name;
+          var songLink = tracks.album.artists[0].external_urls.spotify;
+          $('#search-result').append(
+            `<span>
+              <a href=${songLink}>
+                <div>${songName} by ${albumName}</div>
+              </a>
+              <button type="button" id=${tracks.album.artists[0].id} class="add-to-queue">Add to queue</button>
+            </span>`
+          );
+        })
       });
     });
   })(jQuery);

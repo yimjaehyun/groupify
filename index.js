@@ -23,13 +23,14 @@ app.get('/', function(request, response, next) {
 });
 
 app.post('/', async function(request, response) {
-  const query = `track:${request.body.songName} artistName: ${request.body.artist}`
+  const query = `${request.body.songName}`
   try {
     const token = await spotifyApi.clientCredentialsGrant();
     await spotifyApi.setAccessToken(token.body['access_token']);
     console.log('The access token is ' + token.body['access_token']);
-    const val = await spotifyApi.searchTracks(query);
-    console.log(val.body);
+    const searchResults = await spotifyApi.searchTracks(query);
+    response.json(searchResults.body.tracks.items);
+    // console.log(JSON.stringify(searchResults.body.tracks.items, null, "  "));
   } catch(err) {
     console.log(err);
   }
