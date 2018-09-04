@@ -18,11 +18,12 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script>
   (function($) {
+    $("#play-btn").click(function() {
 
+    });
 
-
-    $("#search-btn").click(function(){
-      $.post("/", {songName: $('#song-name').val(), artistName: $('#artist-name').val()}, function(data) {
+    $("#search-btn").click(function() {
+      $.post("/searchTrack", {songName: $('#song-name').val(), artistName: $('#artist-name').val()}, function(data) {
         data.forEach(function(tracks) {
           var songName = tracks.name;
           var albumName = tracks.album.artists[0].name;
@@ -32,10 +33,16 @@
               <a href=${songLink}>
                 <div>${songName} by ${albumName}</div>
               </a>
-              <button type="button" id=${tracks.album.artists[0].id} class="add-to-queue">Add to queue</button>
+              <button type="button" class="add-to-queue" id=${tracks.album.artists[0].id}>Add to queue</button>
             </span>`
           );
         })
+      });
+    });
+
+    $("#search-result").on("click", "button", function(event){
+      $.post("/addToQueue", {trackId: this.id}, function(data) {
+
       });
     });
   })(jQuery);

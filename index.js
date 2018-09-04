@@ -22,7 +22,7 @@ app.get('/', function(request, response, next) {
   response.render('index.ejs');
 });
 
-app.post('/', async function(request, response) {
+app.post('/searchTrack', async function(request, response) {
   const query = `${request.body.songName}`
   try {
     const token = await spotifyApi.clientCredentialsGrant();
@@ -33,6 +33,16 @@ app.post('/', async function(request, response) {
     // console.log(JSON.stringify(searchResults.body.tracks.items, null, "  "));
   } catch(err) {
     console.log(err);
+  }
+});
+
+app.post('/addToQueue', async function(request, response) {
+  try {
+    //await spotifyApi.addTracksToPlaylist('Groupify', '76SJ1j40AUO4LXSQjfNm0m', [`spotify:track:${request.body.trackId}`]);
+    const playlist = await spotifyApi.getPlaylist('Groupify', '76SJ1j40AUO4LXSQjfNm0m');
+    console.log(playlist);
+  } catch(error) {
+    console.log(error);
   }
 });
 
