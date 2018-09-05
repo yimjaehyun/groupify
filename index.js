@@ -2,9 +2,6 @@ const SpotifyWebApi = require('spotify-web-api-node');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const SPOTIFY_USERNAME=process.env.SPOTIFY_USERNAME;
-const SPOTIFY_PASSWORD=process.env.SPOTIFY_PASSWORD;
-
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
