@@ -8,6 +8,7 @@ const SPOTIFY_PASSWORD=process.env.SPOTIFY_PASSWORD;
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+  redirectUri: 'https://c0a3a2f6.ngrok.io'
 });
 
 const app = express();
@@ -24,9 +25,16 @@ app.get('/', function(request, response, next) {
 
 app.post('/addToQueue', async function(request, response) {
   try {
+	var scopes = ['user-read-private', 'user-read-email'],
+		clientId: clientId
+		redirectUri: redirectUri
+	  	state = 'random-test-state-work-pls';
 
+	var authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
+
+	console.log(authorizeURL);
   } catch(error) {
-
+    console.log(error);
   }
 });
 
