@@ -44,10 +44,6 @@ app.get('/test', async function(req, res) {
 	console.log("get:" + JSON.stringify(req.body));
 });
 
-app.post('/test', async function(req, res) {
-	console.log("post:" + res);
-});
-
 const server = app.listen(8000, function() {
   console.log('groupify host server listening on port 8000');
 });
