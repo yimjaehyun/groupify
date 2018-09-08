@@ -5,10 +5,15 @@ const bodyParser = require('body-parser');
 const SPOTIFY_USERNAME=process.env.SPOTIFY_USERNAME;
 const SPOTIFY_PASSWORD=process.env.SPOTIFY_PASSWORD;
 
+var scopes = ['user-read-private', 'user-read-email'],
+  redirectUri = 'https://cd12824e.ngrok.io/test',
+  clientId = process.env.SPOTIFY_CLIENT_ID,
+  state = 'peice-of-shit';
+
+// Setting credentials can be done in the wrapper's constructor, or using the API object's setters.
 var spotifyApi = new SpotifyWebApi({
-  clientId: process.env.SPOTIFY_CLIENT_ID,
-  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-  redirectUri: 'https://c0a3a2f6.ngrok.io'
+  redirectUri: redirectUri,
+  clientId: clientId
 });
 
 const app = express();
@@ -19,23 +24,28 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-app.get('/', function(request, response, next) {
-  response.render('host.ejs');
+app.post('/', function(req, res) {
+	console.log("post:" + req.body);
 });
 
-app.post('/addToQueue', async function(request, response) {
-  try {
-	var scopes = ['user-read-private', 'user-read-email'],
-		clientId: clientId
-		redirectUri: redirectUri
-	  	state = 'random-test-state-work-pls';
+app.get('/', async function(request, response, next) {
+	try {
+		var authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
 
-	var authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
+		console.log(authorizeURL);
+		response.redirect(authorizeURL);
+	}
+	catch(err){
+		console.log(err);
+	}
+});
 
-	console.log(authorizeURL);
-  } catch(error) {
-    console.log(error);
-  }
+app.get('/test', async function(req, res) {
+	console.log("get:" + JSON.stringify(req.body));
+});
+
+app.post('/test', async function(req, res) {
+	console.log("post:" + res);
 });
 
 const server = app.listen(8000, function() {
