@@ -6,7 +6,7 @@ const SPOTIFY_USERNAME=process.env.SPOTIFY_USERNAME;
 const SPOTIFY_PASSWORD=process.env.SPOTIFY_PASSWORD;
 
 var scopes = ['user-read-private', 'user-read-email'],
-  redirectUri = 'https://cd12824e.ngrok.io/test',
+  redirectUri = 'https://a223f4f2.ngrok.io/test',
   clientId = process.env.SPOTIFY_CLIENT_ID,
   state = 'peice-of-shit';
 
@@ -31,8 +31,6 @@ app.post('/', function(req, res) {
 app.get('/', async function(request, response, next) {
 	try {
 		var authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
-
-		console.log(authorizeURL);
 		response.redirect(authorizeURL);
 	}
 	catch(err){
@@ -41,7 +39,20 @@ app.get('/', async function(request, response, next) {
 });
 
 app.get('/test', async function(req, res) {
+<<<<<<< HEAD
 	console.log("get:" + JSON.stringify(req.body));
+=======
+  try {
+    const code = req.query.code;
+    console.log(code);
+    const token = await spotifyApi.authorizationCodeGrant(code);
+    console.log('token' + token);
+    await spotifyApi.setAccessToken(token.body['access_token']);
+    await spotifyApi.setRefreshToken(token.body['refresh_token']);
+  } catch(error) {
+    console.log(error);
+  }
+>>>>>>> 56123d6274812f28a3e5414fc38ea75060af39f6
 });
 
 const server = app.listen(8000, function() {
