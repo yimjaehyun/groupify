@@ -31,5 +31,5 @@ app.post('/addToQueue', async function(request, response) {
 });
 
 const server = app.listen(8000, function() {
-  console.log('groupify server listening on port 8000');
+  console.log('groupify host server listening on port 8000');
 });

@@ -35,14 +35,15 @@ app.post('/searchTrack', async function(request, response) {
 
 app.post('/addToQueue', async function(request, response) {
   try {
+    console.log(request.body);
     //await spotifyApi.addTracksToPlaylist('Groupify', '76SJ1j40AUO4LXSQjfNm0m', [`spotify:track:${request.body.trackId}`]);
-    const playlist = await spotifyApi.getPlaylist('Groupify', '76SJ1j40AUO4LXSQjfNm0m');
-    console.log(playlist);
+    //const playlist = await spotifyApi.getPlaylist('Groupify', '76SJ1j40AUO4LXSQjfNm0m');
+    // console.log(playlist);
   } catch(error) {
     console.log(error);
   }
 });
 
 const server = app.listen(8000, function() {
-  console.log('groupify server listening on port 8000');
+  console.log('groupify user server listening on port 8000');
 });

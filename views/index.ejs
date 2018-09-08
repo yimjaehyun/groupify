@@ -1,49 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Groupify</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Groupify</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 </head>
 <body>
-  <div id="banner">
-    Song Name: <input type="text" id="song-name" value="Shelter"><br>
-    Artist Name: <input type="text" id="artist-name" value="Porter Robinson"><br>
-    <button type="button" id="search-btn">search</button>
+  <div class="container">
+  	<div class="row">
+  	    <div class="col-12"><h1><a href="." style="color: #84bd00; text-decoration: none;">Groupify</a><h1></div>
+  	    <div class="col-12">
+      	    <div id="custom-search-input">
+                  <div class="input-group">
+                      <input id="search-input" type="text" class="search-query form-control" placeholder="Song Name, Artist, or both" />
+                      <div class="input-group-append">
+                        <button id="search-btn" class="btn btn-outline-secondary" type="button">search</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+  	</div>
+
+    <div class="row">
+      <div class="col-12">
+          <div class="container">
+           <div id="search-result" class="row">
+
+           </div>
+         </div>
+      </div>
+    </div>
   </div>
 
-  <h1>Search Results</h1>
-  <div id="search-result"></div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+
   <script>
   (function($) {
-    $("#play-btn").click(function() {
-
-    });
-
     $("#search-btn").click(function() {
-      $.post("/searchTrack", {songName: $('#song-name').val(), artistName: $('#artist-name').val()}, function(data) {
+      $.post("/searchTrack", {songName: $('#search-input').val(), artistName: $('#artist-name').val()}, function(data) {
+        $('#search-result').replaceWith(`<div id="search-result" class="row"></div>`);
+        if(data.length == 0) {
+          $('#search-result').append(`<h4>No results found :(</h4>`);
+        }
         data.forEach(function(tracks) {
-          var songName = tracks.name;
-          var albumName = tracks.album.artists[0].name;
-          var songLink = tracks.album.artists[0].external_urls.spotify;
+          const songName = tracks.name;
+          const albumName = tracks.album.artists[0].name;
+          const songLink = tracks.album.artists[0].external_urls.spotify;
+          const imgURL = tracks.album.images[1].url;
           $('#search-result').append(
-            `<span>
-              <a href=${songLink}>
-                <div>${songName} by ${albumName}</div>
-              </a>
-              <button type="button" class="add-to-queue" id=${tracks.album.artists[0].id}>Add to queue</button>
-            </span>`
+            `<div class="col-12">
+              <img src="${imgURL}" alt="${songName}">
+              <a href="${songLink}"><button type="button" class="btn btn-success">${songName} - ${albumName}</button></a>
+              <button type="button" class="btn btn-outline-success queue" id=${tracks.album.artists[0].id}>Add to queue</button>
+            </div>`
           );
         })
       });
     });
 
-    $("#search-result").on("click", "button", function(event){
+    $(document).on("click", ".queue", function(event){
       $.post("/addToQueue", {trackId: this.id}, function(data) {
-
+        
       });
+    });
+
+    $(document).on("keypress", "#search-input", function(e) {
+      if (e.which == 13) {
+          $('#search-btn').click();
+      }
     });
   })(jQuery);
   </script>
