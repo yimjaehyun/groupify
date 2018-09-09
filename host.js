@@ -13,7 +13,8 @@ var scopes = ['user-read-private', 'user-read-email'],
 // Setting credentials can be done in the wrapper's constructor, or using the API object's setters.
 var spotifyApi = new SpotifyWebApi({
   redirectUri: redirectUri,
-  clientId: clientId
+  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
 
 const app = express();
@@ -41,11 +42,10 @@ app.get('/', async function(request, response, next) {
 app.get('/test', async function(req, res) {
   try {
     const code = req.query.code;
-    console.log(code);
     const token = await spotifyApi.authorizationCodeGrant(code);
-    console.log('token' + token);
-    await spotifyApi.setAccessToken(token.body['access_token']);
-    await spotifyApi.setRefreshToken(token.body['refresh_token']);
+    console.log('token' + JSON.stringify(token));
+    // await spotifyApi.setAccessToken(token.body['access_token']);
+    // await spotifyApi.setRefreshToken(token.body['refresh_token']);
   } catch(error) {
     console.log(error);
   }
