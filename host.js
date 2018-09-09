@@ -40,9 +40,6 @@ app.get('/', async function(request, response, next) {
 });
 
 app.get('/test', async function(req, res) {
-<<<<<<< HEAD
-	console.log("get:" + JSON.stringify(req.body));
-=======
   try {
     const code = req.query.code;
     const token = await spotifyApi.authorizationCodeGrant(code);
@@ -52,7 +49,6 @@ app.get('/test', async function(req, res) {
   } catch(error) {
     console.log(error);
   }
->>>>>>> 56123d6274812f28a3e5414fc38ea75060af39f6
 });
 
 const server = app.listen(8000, function() {
