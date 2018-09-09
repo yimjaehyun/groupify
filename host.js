@@ -5,8 +5,8 @@ const bodyParser = require('body-parser');
 const SPOTIFY_USERNAME=process.env.SPOTIFY_USERNAME;
 const SPOTIFY_PASSWORD=process.env.SPOTIFY_PASSWORD;
 
-var scopes = ['user-read-private', 'user-read-email'],
-  redirectUri = 'https://a223f4f2.ngrok.io/test',
+var scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private'],
+  redirectUri = 'https://d8e6f7e4.ngrok.io/test',
   clientId = process.env.SPOTIFY_CLIENT_ID,
   state = 'peice-of-shit';
 
@@ -43,9 +43,35 @@ app.get('/test', async function(req, res) {
   try {
     const code = req.query.code;
     const token = await spotifyApi.authorizationCodeGrant(code);
-    console.log('token' + JSON.stringify(token));
-    // await spotifyApi.setAccessToken(token.body['access_token']);
-    // await spotifyApi.setRefreshToken(token.body['refresh_token']);
+   // console.log('token' + JSON.stringify(token));
+    await spotifyApi.setAccessToken(token.body['access_token']);
+    await spotifyApi.setRefreshToken(token.body['refresh_token']); 
+   // const user = await spotifyApi.getMe();
+   // console.log(JSON.stringify(user));
+    await spotifyApi.createPlaylist('dlawogus', 'Groupify', { 'public' : false });
+
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+app.post('/addToQueue', async function(req, res) {
+  try{
+    const token = await spotifyApi.refreshAccessToken();
+    await spotifyApi.setAccessToken(token.body['access_token']);
+    const userId = await spotifyApi.getMe().body.id;
+    const playlist = await spotifyApi.getUserPlaylists(userId);
+    playlist.forEach(function(list) {
+        if(list.body.name === 'Groupify') {
+          const playlistId = list.body.id;
+          break;
+        }
+    });
+    await spotifyApi.addTracksToPlaylist(userId, playlistId, "spotify:track:" + req.body.trackId);
+    
+
+    //await spotifyApi.addTracksToPlaylist('dlawogus', 'Groupify', "spotify:track:" + req);
+    //console.log('Added track to playlist!');
   } catch(error) {
     console.log(error);
   }
