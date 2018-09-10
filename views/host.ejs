@@ -8,13 +8,24 @@
 <body>
   <div id="banner">
     <button type="button" id="play-btn">Play</button>
+    <button type="button" id="host-btn">Host</button>
+  </div>
+
+  <div id="test">
+
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script>
   (function($) {
+    $("#host-btn").click(function() {
+      $.get("/hostLink", function(data) {
+        window.location = data;
+      });
+    });
+
     $("#play-btn").click(function() {
-      
+
     });
   })(jQuery);
   </script>

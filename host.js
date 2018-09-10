@@ -6,14 +6,13 @@ const SPOTIFY_USERNAME=process.env.SPOTIFY_USERNAME;
 const SPOTIFY_PASSWORD=process.env.SPOTIFY_PASSWORD;
 
 var scopes = ['user-read-private', 'user-read-email'],
-  redirectUri = 'https://a223f4f2.ngrok.io/test',
+  redirectUri = 'https://8e0c79e4.ngrok.io/hostAuth',
   clientId = process.env.SPOTIFY_CLIENT_ID,
   state = 'peice-of-shit';
 
-// Setting credentials can be done in the wrapper's constructor, or using the API object's setters.
 var spotifyApi = new SpotifyWebApi({
   redirectUri: redirectUri,
-  clientId: process.env.SPOTIFY_CLIENT_ID,
+  clientId: clientId,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
 
@@ -25,27 +24,29 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(bodyParser.json());
 
-app.post('/', function(req, res) {
-	console.log("post:" + req.body);
+app.get('/', function(request, response, next) {
+	response.render('host.ejs');
 });
 
-app.get('/', async function(request, response, next) {
-	try {
-		var authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
-		response.redirect(authorizeURL);
-	}
-	catch(err){
-		console.log(err);
-	}
-});
-
-app.get('/test', async function(req, res) {
+app.get('/hostLink', async function(request, response) {
   try {
-    const code = req.query.code;
+    var authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
+    console.log(authorizeURL);
+    response.json(authorizeURL);
+		// response.redirect(authorizeURL);
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+app.get('/hostAuth', async function(request, response) {
+  try {
+    const code = request.query.code;
+    console.log(code);
     const token = await spotifyApi.authorizationCodeGrant(code);
     console.log('token' + JSON.stringify(token));
-    // await spotifyApi.setAccessToken(token.body['access_token']);
-    // await spotifyApi.setRefreshToken(token.body['refresh_token']);
+    await spotifyApi.setAccessToken(token.body['access_token']);
+    await spotifyApi.setRefreshToken(token.body['refresh_token']);
   } catch(error) {
     console.log(error);
   }
