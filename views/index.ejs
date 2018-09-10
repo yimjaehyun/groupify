@@ -53,7 +53,7 @@
             `<div class="col-12">
               <img src="${imgURL}" alt="${songName}">
               <a href="${songLink}"><button type="button" class="btn btn-success">${songName} - ${albumName}</button></a>
-              <button type="button" class="btn btn-outline-success queue" id=${tracks.album.artists[0].id}>Add to queue</button>
+              <button type="button" class="btn btn-outline-success queue" id=${tracks.id}>Add to queue</button>
             </div>`
           );
         })
@@ -62,7 +62,7 @@
 
     $(document).on("click", ".queue", function(event){
       $.post("/addToQueue", {trackId: this.id}, function(data) {
-        
+
       });
     });
 
