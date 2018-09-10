@@ -1,6 +1,7 @@
 const SpotifyWebApi = require('spotify-web-api-node');
 const express = require('express');
 const bodyParser = require('body-parser');
+const Request = require('request');
 
 var spotifyApi = new SpotifyWebApi({
   clientId: process.env.SPOTIFY_CLIENT_ID,
@@ -36,9 +37,15 @@ app.post('/searchTrack', async function(request, response) {
 app.post('/addToQueue', async function(request, response) {
   try {
     console.log(request.body);
-    //await spotifyApi.addTracksToPlaylist('Groupify', '76SJ1j40AUO4LXSQjfNm0m', [`spotify:track:${request.body.trackId}`]);
-    //const playlist = await spotifyApi.getPlaylist('Groupify', '76SJ1j40AUO4LXSQjfNm0m');
-    // console.log(playlist);
+    Request.post(
+      {
+        url: 'https://d8e6f7e4.ngrok.io/addToQueue',
+        form: request.body
+      },
+      function (err, httpResponse, body) {
+        console.log(err, body);
+      }
+    );
   } catch(error) {
     console.log(error);
   }
