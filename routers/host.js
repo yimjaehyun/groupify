@@ -3,8 +3,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const randomWords = require('random-words');
 
-const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private', 'playlist-modify-public'],
-  redirectUri = 'https://66751898.ngrok.io/host',
+const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private', 'playlist-modify-public', 'user-modify-playback-state'],
+  redirectUri = 'https://36223f3d.ngrok.io/host',
   clientId = process.env.SPOTIFY_CLIENT_ID,
   state = 'peice-of-shit';
 
@@ -71,7 +71,7 @@ router.post('/addToQueue', async function(req, res) {
           console.log(userId.body.id);
           console.log(list.id);
           console.log(req.body.trackId);
-          await spotifyApi.addTracksToPlaylist('dlawogus', '7hSMILGnwx33Jv2bS7avp6', ["spotify:track:" + req.body.trackId])
+          await spotifyApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + req.body.trackId])
           res.json(200);
           // await spotifyApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + req.body.trackId]);
         }
@@ -83,6 +83,43 @@ router.post('/addToQueue', async function(req, res) {
 
     //await spotifyApi.addTracksToPlaylist('dlawogus', 'Groupify', "spotify:track:" + req);
     //console.log('Added track to playlist!');
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+router.put('/play', async function(request, response) {
+  try {
+    const token = await spotifyApi.refreshAccessToken();
+    await spotifyApi.setAccessToken(token.body['access_token']);
+    const userId = await spotifyApi.getMe();
+    const playlist = await spotifyApi.getUserPlaylists(userId.body.id);
+    let playlistId = '';
+    playlist.body.items.forEach(async function(list) {
+      try {
+        if(list.name === 'Groupify') {
+            playlistId = list.id;
+            console.log(list.name);
+            console.log(playlistId);
+          }
+        } catch(error) {
+          console.log(error);
+        }
+      });
+    await spotifyApi.play({
+      context_uri: "spotify:user:1216463089:playlist:2KTjWy2m87F28UFvfo09Wg"
+    });
+    response.json(200);
+    } catch(error) {
+      console.log(error);
+  };
+});
+
+router.put('/pause', async function(request, response) {
+  try{
+    const token = await spotifyApi.refreshAccessToken();
+    await spotifyApi.setAccessToken(token.body['access_token']);
+    await spotifyApi.pause();
   } catch(error) {
     console.log(error);
   }
