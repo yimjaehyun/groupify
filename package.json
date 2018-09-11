@@ -20,6 +20,7 @@
     "ejs": "^2.6.1",
     "express": "^4.16.3",
     "nodemon": "^1.18.4",
+    "random-words": "^1.1.0",
     "request": "^2.88.0",
     "spotify-web-api-node": "^3.1.1"
   }

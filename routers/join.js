@@ -8,20 +8,23 @@ var spotifyApi = new SpotifyWebApi({
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
 
-const app = express();
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
-app.use(bodyParser.json());
+const router = express.Router();
 
-app.get('/', function(request, response, next) {
-  response.render('index.ejs');
+router.get('/', function(request, response, next) {
+  response.render('join.ejs');
 });
 
-app.post('/searchTrack', async function(request, response) {
-  const query = `${request.body.songName}`
+router.post('/joinRoom', async function(req, res) {
+  try {
+    console.log(req.body);
+    res.json({success: true});
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+router.post('/searchTrack', async function(request, response) {
+  const query = `${request.body.trackSearch}`
   try {
     const token = await spotifyApi.clientCredentialsGrant();
     await spotifyApi.setAccessToken(token.body['access_token']);
@@ -34,7 +37,7 @@ app.post('/searchTrack', async function(request, response) {
   }
 });
 
-app.post('/addToQueue', async function(request, response) {
+router.post('/addToQueue', async function(request, response) {
   try {
     console.log(request.body);
     Request.post(
@@ -51,6 +54,4 @@ app.post('/addToQueue', async function(request, response) {
   }
 });
 
-const server = app.listen(8000, function() {
-  console.log('groupify user server listening on port 8000');
-});
+module.exports = router;

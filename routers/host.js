@@ -1,14 +1,14 @@
 const SpotifyWebApi = require('spotify-web-api-node');
 const express = require('express');
 const bodyParser = require('body-parser');
+const randomWords = require('random-words');
 
-const SPOTIFY_USERNAME=process.env.SPOTIFY_USERNAME;
-const SPOTIFY_PASSWORD=process.env.SPOTIFY_PASSWORD;
-
-var scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private', 'playlist-modify-public'],
-  redirectUri = 'https://d8e6f7e4.ngrok.io/test',
+const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private', 'playlist-modify-public'],
+  redirectUri = 'https://66751898.ngrok.io/host',
   clientId = process.env.SPOTIFY_CLIENT_ID,
   state = 'peice-of-shit';
+
+var map = {};
 
 var spotifyApi = new SpotifyWebApi({
   redirectUri: redirectUri,
@@ -16,46 +16,50 @@ var spotifyApi = new SpotifyWebApi({
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
 
-const app = express();
-app.use(express.static('public'));
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({
-  extended: false
-}));
-app.use(bodyParser.json());
+const router = express.Router();
 
-app.get('/', function(request, response, next) {
-	response.render('host.ejs');
-});
-
-app.get('/hostLink', async function(request, response) {
+router.get('/', async function(request, response, next) {
   try {
-    var authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
-    console.log(authorizeURL);
-    response.json(authorizeURL);
-		// response.redirect(authorizeURL);
+    const code = request.query.code;
+    if(code) {
+      const roomId = `${randomWords()}${Math.floor(Math.random() * Math.floor(999))}`;
+      const token = await spotifyApi.authorizationCodeGrant(code);
+      await spotifyApi.setAccessToken(token.body['access_token']);
+      await spotifyApi.setRefreshToken(token.body['refresh_token']);
+      map[roomId] = spotifyApi;
+    }
+    console.log(map);
+    response.render('host.ejs');
   } catch(error) {
     console.log(error);
   }
 });
 
-app.get('/hostAuth', async function(request, response) {
+// TODO add redirect URL to whitelist on dashboard
+router.get('/login', async function(request, response) {
   try {
+    const authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
+    response.json(authorizeURL);
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+router.get('/createHost', async function(request, response) {
+  try {
+    const roomId = `${randomWords()}${Math.floor(Math.random() * Math.floor(999))}`;
     const code = request.query.code;
-    console.log(code);
     const token = await spotifyApi.authorizationCodeGrant(code);
     await spotifyApi.setAccessToken(token.body['access_token']);
     await spotifyApi.setRefreshToken(token.body['refresh_token']);
-   // const user = await spotifyApi.getMe();
-   // console.log(JSON.stringify(user));
-    // await spotifyApi.createPlaylist('dlawogus', 'Groupify', { 'public' : false });
-
+    map[roomId] = spotifyApi;
+    response.json(200);
   } catch(error) {
     console.log(error);
   }
 });
 
-app.post('/addToQueue', async function(req, res) {
+router.post('/addToQueue', async function(req, res) {
   try {
     const token = await spotifyApi.refreshAccessToken();
     await spotifyApi.setAccessToken(token.body['access_token']);
@@ -84,6 +88,4 @@ app.post('/addToQueue', async function(req, res) {
   }
 });
 
-const server = app.listen(8000, function() {
-  console.log('groupify host server listening on port 8000');
-});
+module.exports = router;

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Groupify</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+  <div class="container">
+  	<div class="row">
+  	    <div class="col-12"><h1><a href="." style="color: #84bd00; text-decoration: none;">Groupify</a><h1></div>
+        <div class="input-group-append">
+          <div class="col-12">
+        	    <div id="custom-search-input">
+                  <div class="input-group">
+                      <input id="search-input" type="text" class="search-query form-control" placeholder="Room Code" />
+                      <div class="input-group-append">
+                        <button id="join-btn" class="btn btn-outline-secondary" type="button">Join Room</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <button id="host-btn" class="btn btn-outline-secondary" type="button">Create Room</button>
+        </div>
+  	</div>
+
+    <div class="row">
+      <div class="col-12">
+          <div class="container">
+           <div id="search-result" class="row">
+
+           </div>
+         </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+  (function($) {
+    $("#join-btn").click(function() {
+      $.post('/join/joinRoom', {roomId: $('#search-input').val()}, function(data) {
+        if(data.success == true)
+          window.location.href = '/join';
+        else
+          window.location.href = '/';
+      });
+    });
+
+    $("#host-btn").click(function() {
+      $.get('/host/login', function(data) {
+        window.location.href = data;
+      });
+    });
+
+    $(document).on("keypress", "#search-input", function(e) {
+      if (e.which == 13) {
+        $('#join-btn').click();
+      }
+    });
+  })(jQuery);
+  </script>
+</body>
+</html>

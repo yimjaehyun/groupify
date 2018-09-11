@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Groupify</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 </head>
@@ -13,14 +14,14 @@
   	    <div class="col-12"><h1><a href="." style="color: #84bd00; text-decoration: none;">Groupify</a><h1></div>
   	    <div class="col-12">
       	    <div id="custom-search-input">
-                  <div class="input-group">
-                      <input id="search-input" type="text" class="search-query form-control" placeholder="Song Name, Artist, or both" />
-                      <div class="input-group-append">
-                        <button id="search-btn" class="btn btn-outline-secondary" type="button">search</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
+                <div class="input-group">
+                    <input id="search-input" type="text" class="search-query form-control" placeholder="Song Name, Artist, or both" />
+                    <div class="input-group-append">
+                      <button id="search-btn" class="btn btn-outline-secondary" type="button">search</button>
+                    </div>
+                </div>
+            </div>
+        </div>
   	</div>
 
     <div class="row">
@@ -34,12 +35,10 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
-
   <script>
   (function($) {
     $("#search-btn").click(function() {
-      $.post("/searchTrack", {songName: $('#search-input').val(), artistName: $('#artist-name').val()}, function(data) {
+      $.post("/join/searchTrack", {trackSearch: $('#search-input').val()}, function(data) {
         $('#search-result').replaceWith(`<div id="search-result" class="row"></div>`);
         if(data.length == 0) {
           $('#search-result').append(`<h4>No results found :(</h4>`);
@@ -61,7 +60,7 @@
     });
 
     $(document).on("click", ".queue", function(event){
-      $.post("/addToQueue", {trackId: this.id}, function(data) {
+      $.post("/join/addToQueue", {trackId: this.id}, function(data) {
 
       });
     });
