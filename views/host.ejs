@@ -1,32 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Groupify</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <title>Groupify</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
+  <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 </head>
 <body>
-  <div id="banner">
-    <button type="button" id="play-btn">Play</button>
-    <button type="button" id="host-btn">Host</button>
+  <div class="container">
+  	<div class="row">
+  	    <div class="col-12"><h1><a href="../" style="color: #84bd00; text-decoration: none;">Groupify</a><h1></div>
+  	    <div class="col-12">
+          <div id="room-id"><%= roomId %></div>
+          <button id="play-btn" class="btn btn-outline-secondary" type="button">Play</button>
+          <button id="pause-btn" class="btn btn-outline-secondary" type="button">Pause</button>
+        </div>
+  	</div>
+
+    <div class="row">
+      <div class="col-12">
+          <div class="container">
+           <div id="search-result" class="row">
+
+           </div>
+         </div>
+      </div>
+    </div>
   </div>
 
-  <div id="roomId">
-    <%= roomId %>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <script>
   (function($) {
-    $("#host-btn").click(function() {
-      $.get("/hostLink", function(data) {
-        window.location = data;
+
+    $("#play-btn").click(function() {
+      $.put("/play", {}, function(data) {
+
       });
     });
 
-    $("#play-btn").click(function() {
-      $get("/play", function(data) {
-        
+    $("#pause-btn").click(function() {
+      $.put("/pause", {}, function(data) {
+
       });
     });
   })(jQuery);

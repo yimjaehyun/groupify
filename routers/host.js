@@ -49,8 +49,6 @@ router.get('/login', async function(request, response) {
   }
 });
 
-
-
 router.put('/play', async function(request, response) {
   try {
     const token = await spotifyApi.refreshAccessToken();
