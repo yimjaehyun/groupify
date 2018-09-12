@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const randomWords = require('random-words');
 
 const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private', 'playlist-modify-public', 'user-modify-playback-state'],
-  redirectUri = 'https://99918ffe.ngrok.io/host',// TODO share updated map with join so join can call add to queue with specific spotify obj
+  redirectUri = 'https://1a0c24d6.ngrok.io/host',// TODO share updated map with join so join can call add to queue with specific spotify obj
   clientId = process.env.SPOTIFY_CLIENT_ID,
   state = 'peice-of-shit';
 
@@ -68,7 +68,7 @@ router.put('/play', async function(request, response) {
         }
       });
     await spotifyApi.play({
-      context_uri: "spotify:user:1216463089:playlist:2KTjWy2m87F28UFvfo09Wg"
+      context_uri: "spotify:user:" + userId.body.id + ":playlist:" + playlistId
     });
     response.json(200);
     } catch(error) {
