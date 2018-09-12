@@ -11,11 +11,13 @@ var spotifyApi = new SpotifyWebApi({
 
 const router = express.Router();
 
+// Send roomId to user FrontEnd
 router.get('/:roomId?', function(request, response, next) {
   console.log(request.params.roomId);
   response.render('join.ejs', {roomId: request.params.roomId});
 });
 
+// Verify if valid roomId
 router.post('/joinRoom', async function(req, res) {
   try {
     if(map.map[req.body.roomId])
@@ -27,8 +29,11 @@ router.post('/joinRoom', async function(req, res) {
   }
 });
 
+/**
+@param {trackSearch: 'searchValue'}
+**/
 router.post('/searchTrack', async function(request, response) {
-  const query = `${request.body.trackSearch}`
+  const query = request.body.trackSearch
   try {
     const token = await spotifyApi.clientCredentialsGrant();
     await spotifyApi.setAccessToken(token.body['access_token']);
@@ -39,6 +44,9 @@ router.post('/searchTrack', async function(request, response) {
   }
 });
 
+/**
+@param {trackId: 'exampleTrackId', roomId: 'example123'}
+**/
 router.post('/addToQueue', async function(request, response) {
   try {
     const userSpotifyApi = map.map[request.body.roomId];
@@ -49,8 +57,8 @@ router.post('/addToQueue', async function(request, response) {
     playlist.body.items.forEach(async function(list) {
       try {
         if(list.name === 'Groupify') {
-          await userSpotifyApi.addTracksToPlaylist('userId.body.id', 'list.id', ["spotify:track:" + request.body.trackId])
-          res.json(200);
+          await userSpotifyApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + request.body.trackId])
+          response.json(200);
         }
       } catch(error) {
         console.log(error);
