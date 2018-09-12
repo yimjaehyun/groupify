@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const randomWords = require('random-words');
 
 const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private', 'playlist-modify-public'],
-  redirectUri = 'https://66751898.ngrok.io/host',
+  redirectUri = 'https://99918ffe.ngrok.io/host',// TODO share updated map with join so join can call add to queue with specific spotify obj
   clientId = process.env.SPOTIFY_CLIENT_ID,
   state = 'peice-of-shit';
 
@@ -18,24 +18,28 @@ var spotifyApi = new SpotifyWebApi({
 
 const router = express.Router();
 
+
+// If redirect (has code in url), authorize and add to map
 router.get('/', async function(request, response, next) {
   try {
+    const roomId = `${randomWords()}${Math.floor(Math.random() * Math.floor(999))}`;
     const code = request.query.code;
     if(code) {
-      const roomId = `${randomWords()}${Math.floor(Math.random() * Math.floor(999))}`;
       const token = await spotifyApi.authorizationCodeGrant(code);
       await spotifyApi.setAccessToken(token.body['access_token']);
       await spotifyApi.setRefreshToken(token.body['refresh_token']);
       map[roomId] = spotifyApi;
     }
-    console.log(map);
-    response.render('host.ejs');
+    response.render('host.ejs', {'roomId': roomId});
   } catch(error) {
     console.log(error);
   }
 });
 
-// TODO add redirect URL to whitelist on dashboard
+/**
+TODO add redirect URL to whitelist on dashboard
+generate and return authorizeURL
+**/
 router.get('/login', async function(request, response) {
   try {
     const authorizeURL = await spotifyApi.createAuthorizeURL(scopes, state);
@@ -45,47 +49,5 @@ router.get('/login', async function(request, response) {
   }
 });
 
-router.get('/createHost', async function(request, response) {
-  try {
-    const roomId = `${randomWords()}${Math.floor(Math.random() * Math.floor(999))}`;
-    const code = request.query.code;
-    const token = await spotifyApi.authorizationCodeGrant(code);
-    await spotifyApi.setAccessToken(token.body['access_token']);
-    await spotifyApi.setRefreshToken(token.body['refresh_token']);
-    map[roomId] = spotifyApi;
-    response.json(200);
-  } catch(error) {
-    console.log(error);
-  }
-});
-
-router.post('/addToQueue', async function(req, res) {
-  try {
-    const token = await spotifyApi.refreshAccessToken();
-    await spotifyApi.setAccessToken(token.body['access_token']);
-    const userId = await spotifyApi.getMe();
-    const playlist = await spotifyApi.getUserPlaylists(userId.body.id);
-    playlist.body.items.forEach(async function(list) {
-      try {
-        if(list.name === 'Groupify') {
-          console.log(userId.body.id);
-          console.log(list.id);
-          console.log(req.body.trackId);
-          await spotifyApi.addTracksToPlaylist('dlawogus', '7hSMILGnwx33Jv2bS7avp6', ["spotify:track:" + req.body.trackId])
-          res.json(200);
-          // await spotifyApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + req.body.trackId]);
-        }
-      } catch(error) {
-        console.log(error);
-      }
-    });
-
-
-    //await spotifyApi.addTracksToPlaylist('dlawogus', 'Groupify', "spotify:track:" + req);
-    //console.log('Added track to playlist!');
-  } catch(error) {
-    console.log(error);
-  }
-});
-
 module.exports = router;
+module.exports.map = map;

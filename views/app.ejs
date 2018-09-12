@@ -26,30 +26,31 @@
           <button id="host-btn" class="btn btn-outline-secondary" type="button">Create Room</button>
         </div>
   	</div>
-
-    <div class="row">
-      <div class="col-12">
-          <div class="container">
-           <div id="search-result" class="row">
-
-           </div>
-         </div>
-      </div>
-    </div>
   </div>
 
 
   <script>
   (function($) {
+    /**
+    Post to joinRoom and get success if correct room ID
+    - if success: go to /join/
+    - else: go back to homepage
+    **/
     $("#join-btn").click(function() {
       $.post('/join/joinRoom', {roomId: $('#search-input').val()}, function(data) {
         if(data.success == true)
-          window.location.href = '/join';
-        else
+          window.location.href = `/join/${$('#search-input').val()}`;
+        else {
+          alert('Wrong Room ID');
           window.location.href = '/';
+        }
       });
     });
 
+    /**
+    GET call to /host/login which returns the authorizeURL and redirects to login
+    - redirects to /host/ with code or error
+    **/
     $("#host-btn").click(function() {
       $.get('/host/login', function(data) {
         window.location.href = data;
