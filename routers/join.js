@@ -49,15 +49,15 @@ router.post('/searchTrack', async function(request, response) {
 **/
 router.post('/addToQueue', async function(request, response) {
   try {
-    const userSpotifyApi = map.map[request.body.roomId];
-    const token = await userSpotifyApi.refreshAccessToken();
-    await userSpotifyApi.setAccessToken(token.body['access_token']);
-    const userId = await userSpotifyApi.getMe();
-    const playlist = await userSpotifyApi.getUserPlaylists(userId.body.id);
+    const spotifyUserApi = map.map[request.body.roomId];
+    const token = await spotifyUserApi.refreshAccessToken();
+    await spotifyUserApi.setAccessToken(token.body['access_token']);
+    const userId = await spotifyUserApi.getMe();
+    const playlist = await spotifyUserApi.getUserPlaylists(userId.body.id);
     playlist.body.items.forEach(async function(list) {
       try {
         if(list.name === 'Groupify') {
-          await userSpotifyApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + request.body.trackId])
+          await spotifyUserApi.addTracksToPlaylist(userId.body.id, list.id, ["spotify:track:" + request.body.trackId]);
           response.json(200);
         }
       } catch(error) {
