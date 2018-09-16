@@ -1,35 +1,24 @@
 const SpotifyWebApi = require('spotify-web-api-node');
-const express = require('express');
-const bodyParser = require('body-parser');
 const randomWords = require('random-words');
+const bodyParser = require('body-parser');
+const express = require('express');
 
-const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private', 'playlist-modify-public', 'user-modify-playback-state'],
-  redirectUri = 'https://771c9589.ngrok.io/host',// TODO share updated map with join so join can call add to queue with specific spotify obj
-  clientId = process.env.SPOTIFY_CLIENT_ID,
-  state = 'peice-of-shit';
+const scopes = ['user-read-private',
+                'user-read-email',
+                'playlist-modify-private',
+                'playlist-modify-public',
+                'user-modify-playback-state'];
+const state = 'state';
 
 var map = {};
 
 var spotifyApi = new SpotifyWebApi({
-  redirectUri: redirectUri,
-  clientId: clientId,
+  redirectUri: 'https://1e32b329.ngrok.io/host', // TODO share updated map with join so join can call add to queue with specific spotify obj
+  clientId: process.env.SPOTIFY_CLIENT_ID,
   clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
 });
 
 const router = express.Router();
-
-/**
-@param {roomId: 'string'}
-removes roomId from Map and delete playlist
-**/
-router.post('/closeRoom', async function(request, repsonse) {
-  try {
-    await delete map[request.body.roomId];
-    repsonse.json(200);
-  } catch(error) {
-    console.log(error);
-  }
-});
 
 // If redirect (has code in url), authorize and add to map
 router.get('/', async function(request, response, next) {
@@ -40,9 +29,38 @@ router.get('/', async function(request, response, next) {
       const token = await spotifyApi.authorizationCodeGrant(code);
       await spotifyApi.setAccessToken(token.body['access_token']);
       await spotifyApi.setRefreshToken(token.body['refresh_token']);
+      //await spotifyApi.createPlaylist((await spotifyApi.getMe()).body.id, 'Groupify', { 'public' : true });
       map[roomId] = spotifyApi;
     }
     response.render('host.ejs', {'roomId': roomId});
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+/**
+@param {object} {roomId} The host room ID
+removes roomId from Map and delete playlist
+**/
+router.post('/closeRoom', async function(request, response) {
+  try {
+    const spotifyUserApi = map[request.body.roomId];
+    const token = await spotifyUserApi.refreshAccessToken();
+    await spotifyUserApi.setAccessToken(token.body['access_token']);
+    const userId = await spotifyUserApi.getMe();
+    const playlist = await spotifyUserApi.getUserPlaylists(userId.body.id);
+    playlist.body.items.forEach(async function(list) {
+      try {
+        if(list.name === 'Groupify') {
+          //TODO doesn't find playlist for some reason
+          //await spotifyUserApi.unfollowPlaylist(list.id);
+        }
+      } catch(error) {
+        console.log(error);
+      }
+    });
+    await delete map[request.body.roomId];
+    response.json(200);
   } catch(error) {
     console.log(error);
   }
@@ -63,36 +81,32 @@ router.get('/login', async function(request, response) {
 
 router.put('/play', async function(request, response) {
   try {
-    const token = await spotifyApi.refreshAccessToken();
-    await spotifyApi.setAccessToken(token.body['access_token']);
-    const userId = await spotifyApi.getMe();
-    const playlist = await spotifyApi.getUserPlaylists(userId.body.id);
-    let playlistId = '';
+    const spotifyUserApi = map[request.body.roomId];
+    const token = await spotifyUserApi.refreshAccessToken();
+    await spotifyUserApi.setAccessToken(token.body['access_token']);
+    const userId = await spotifyUserApi.getMe();
+    const playlist = await spotifyUserApi.getUserPlaylists(userId.body.id);
     playlist.body.items.forEach(async function(list) {
       try {
         if(list.name === 'Groupify') {
-            playlistId = list.id;
-            console.log(list.name);
-            console.log(playlistId);
-          }
-        } catch(error) {
-          console.log(error);
+          await spotifyUserApi.play({context_uri: "spotify:user:" + userId.body.id + ":playlist:" + list.id});
+          response.json(200);
         }
-      });
-    await spotifyApi.play({
-      context_uri: "spotify:user:" + userId.body.id + ":playlist:" + playlistId
+      } catch(error) {
+        console.log(error);
+      }
     });
-    response.json(200);
-    } catch(error) {
-      console.log(error);
-  };
+  } catch(error) {
+    console.log(error);
+  }
 });
 
 router.put('/pause', async function(request, response) {
   try{
-    const token = await spotifyApi.refreshAccessToken();
-    await spotifyApi.setAccessToken(token.body['access_token']);
-    await spotifyApi.pause();
+    const spotifyUserApi = map[request.body.roomId];
+    const token = await spotifyUserApi.refreshAccessToken();
+    await spotifyUserApi.setAccessToken(token.body['access_token']);
+    await spotifyUserApi.pause();
   } catch(error) {
     console.log(error);
   }
