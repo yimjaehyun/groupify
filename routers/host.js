@@ -4,7 +4,7 @@ const bodyParser = require('body-parser');
 const randomWords = require('random-words');
 
 const scopes = ['user-read-private', 'user-read-email', 'playlist-modify-private', 'playlist-modify-public', 'user-modify-playback-state'],
-  redirectUri = 'https://1a0c24d6.ngrok.io/host',// TODO share updated map with join so join can call add to queue with specific spotify obj
+  redirectUri = 'https://771c9589.ngrok.io/host',// TODO share updated map with join so join can call add to queue with specific spotify obj
   clientId = process.env.SPOTIFY_CLIENT_ID,
   state = 'peice-of-shit';
 
@@ -18,6 +18,18 @@ var spotifyApi = new SpotifyWebApi({
 
 const router = express.Router();
 
+/**
+@param {roomId: 'string'}
+removes roomId from Map and delete playlist
+**/
+router.post('/closeRoom', async function(request, repsonse) {
+  try {
+    await delete map[request.body.roomId];
+    repsonse.json(200);
+  } catch(error) {
+    console.log(error);
+  }
+});
 
 // If redirect (has code in url), authorize and add to map
 router.get('/', async function(request, response, next) {

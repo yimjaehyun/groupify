@@ -32,6 +32,14 @@
 
   <script>
   (function($) {
+    $(window).unload( function () {
+      $.ajax({
+          type: "POST",
+          url: "host/closeRoom",
+          data: {roomId: '<%= roomId %>'},
+          async: false,
+      });
+    });
 
     $("#play-btn").click(function() {
       $.ajax({
