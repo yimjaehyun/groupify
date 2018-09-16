@@ -32,7 +32,7 @@
 
   <script>
   (function($) {
-    $(window).unload( function () {
+    $(window).on('beforeunload ',function() {
       $.ajax({
           type: "POST",
           url: "host/closeRoom",
@@ -45,7 +45,7 @@
       $.ajax({
         url: 'host/play',
         type: 'PUT',
-        data:"roomId=<%= roomId %>"
+        data:'roomId=<%= roomId %>'
       });
     });
 
@@ -53,6 +53,7 @@
       $.ajax({
         url: 'host/pause',
         type: 'PUT',
+        data:'roomId=<%= roomId %>'
       });
     });
   })(jQuery);
