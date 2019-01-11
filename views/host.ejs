@@ -1,37 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
+<head >
   <meta charset="UTF-8">
   <title>Groupify</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+  <script src="https://sdk.scdn.co/spotify-player.js"></script>
 </head>
-<body>
-  <div class="container">
-  	<div class="row">
-  	    <div class="col-12"><h1><a href="../" style="color: #84bd00; text-decoration: none;">Groupify</a><h1></div>
-  	    <div class="col-12">
-          <div id="room-id">Room ID: <%= roomId %></div>
-          <button id="play-btn" class="btn btn-outline-secondary" type="button">Play</button>
-          <button id="pause-btn" class="btn btn-outline-secondary" type="button">Pause</button>
+<body class="container-fluid" style="padding:0px; margin: 0px ">
+
+  <nav class="navbar nav-fill bg-dark navbar-dark" style ="margin: 0px; padding: 0px;">
+    <div class="container-fluid " style =" margin: 0px; padding: 0px;white-space: nowrap;">
+        <div class="col-4"><h1><a class="logo" href="../" style="color: #84bd00; text-decoration: none;">Groupify</a></h1>
+          <div id="room-id" style="color:white">Room ID: <%= roomId %></div>
         </div>
-  	</div>
 
-    <div class="row">
-      <div class="col-12">
-          <div class="container">
-           <div id="search-result" class="row">
 
-           </div>
-         </div>
+          <div id="col-7 custom-search-input" style="padding: 10px;">
+
+              <div class="input-group input-group-lg">
+                  <h2><span id="userCount" class="badge badge-success mt-2" style="padding-right: 20px 10px; margin:5px 10px 5px 5px"></span></h2>
+                  <input id="search-input" type="text" class="search-query form-control " placeholder="Song Name,Artist,or both" />
+                  <div class="input-group-append">
+                    <button id="search-btn" class="btn btn-success" type="button" >Search</button>
+                  </div>
+              </div>
+          </div>
+          </div>
       </div>
+</nav>
+<div class="col-12">
+  <div class="row" style="padding: 0px">
+    <div class="col-4 container-fluid" style="background-color:rgb(206, 205, 205); min-height: 800px; margin:0px">
+    <div id="queue" class="row"></div>
     </div>
-  </div>
 
+
+    <div class="col-8 container-fluid" style="background-color:lightgray; min-height: 800px; padding: 0px; margin:0px" >
+    <div class="col-12"><div id="search-result" class="row"></div></div>
+    </div>
+
+
+  </div>
+</div>
+
+<nav class="navbar navbar-dark bg-dark fixed-bottom" style="margin: 0px">
+  <div class="col-12" style="padding: 0; margin: 0px">
+    <div class="btn-group btn-group-lg" style="padding: 0px 5px 0px 200px; margin: 0px" role="group" aria-label="group">
+      <button id="play-btn" class="btn btn-outline-success" type="button">Play</button>
+      <button id="pause-btn" class="btn btn-outline-success" type="button">Pause</button>
+      <button id="previous-btn" class="btn btn-outline-success" type="button">Previous</button>
+      <button id="next-btn" class="btn btn-outline-success" type="button">Next</button>
+      <button id="test-btn" class="btn btn-outline-success" type="button">User Count</button>
+    </div>
+    <label style=" padding:8px 5px 14px 5px;" class="checkbox-inline border border-success rounded text-success"><input id="duplicate" type="checkbox" value="">Duplicates </label>
+    <label style="padding:8px 5px 14px 5px;" class="checkbox-inline border border-success rounded text-success"><input id="repeat" type="checkbox" value="">Repeat</label>
+  </div>
+</nav>
   <script>
+  var player;
+  window.onSpotifyWebPlaybackSDKReady = () => {
+    $.post("/host/accessToken", {roomId: '<%= roomId %>'}, function(data) {
+      const token = data;
+      player = new Spotify.Player({
+        name: 'Groupify',
+        getOAuthToken: cb => { cb(token); }
+      });
+      player.connect();
+    });
+  };
   (function($) {
+    var duplicates = false;
+    $("#search-btn").click(function() {
+      $.post("/join/searchTrack", {trackSearch: $('#search-input').val()}, function(data) {
+        // Reset results
+        $('#search-result').replaceWith(`<div id="search-result" class="row"></div>`);
+        // No search results
+        if(data.length == 0) {
+          $('#search-result').append(`<h4>No results found :(</h4>`);
+        } else {
+          data.forEach(function(tracks) {
+            const songName = tracks.name;
+            const albumName = tracks.album.artists[0].name;
+            const songLink = tracks.album.artists[0].external_urls.spotify;
+            const imgURL = tracks.album.images[0].url;
+            $('#search-result').append(
+              `<div class="col-4"style="styles.gallery.hover; padding: 0px 0px 20px 15px; background-color:lightgray">
+                <a target="_blank" href="${imgURL}">
+                <img
+                  src="${imgURL}"
+                  class="img-thumbnail"
+                  alt="${songName}"
+                  width="250"
+                  height="250"
+                  style="styles.gallery.img;"
+                  />
+                </a>
+              <div style="styles.desc">${songName} - ${albumName}</div>
+              <a href="${songLink}"><button type="button" class="btn btn-success">Play</button></a>
+              <button type="button" class="btn btn-outline-success queue" id=${tracks.id}>Add</button>
+              </div>`
+             /* `<div class="col-12">
+                <img src="${imgURL}" alt="${songName}">
+                <a href="${songLink}"><button type="button" class="btn btn-success">${songName} - ${albumName}</button></a>
+                <button type="button" class="btn btn-outline-success queue" id=${tracks.id}>Add to queue</button>
+              </div>` */
+            );
+          })
+        }
+      });
+    });
+    $('#duplicate').change(function() {
+      var duplicates = false;
+      if(this.checked) {
+        duplicates = true;
+      } else {
+        duplicates = false;
+      }
+      $.post("/host/duplicates", {trackId: this.id, roomId: '<%= roomId %>', duplicates}, function(data) {
+      });
+    });
+
+    $('#repeat').change(function() {
+      if(this.checked) {
+        $.post("/host/repeatOn", {roomId: '<%= roomId %>'}, function(data) {
+        });
+      } else {
+        $.post("/host/repeatOff", {roomId: '<%= roomId %>'}, function(data) {
+        });
+      }
+    });
+
+
+    $("test-btn").click(function() {
+      $.ajax({
+        url: 'host/getQueue',
+        type: 'POST',
+        data: {roomId: '<%= roomId %>'}
+      });
+    });
+
+
+    $(document).on("click", ".queue", function(event){
+      $.post("/join/addToQueue", {trackId: this.id, roomId: '<%= roomId %>'}, function(data) {
+        $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
+          console.log("I got the Queue")
+          console.log(data.items)
+          $('#queue').replaceWith(`<div id="queue" class="row"></div>`);
+          for(i = 0;i<data.items.length;i++){
+            console.log(data.items[i].track.artists[0].name)
+            console.log(data.items[i].track.name)
+            const name = data.items[i].track.artists[0].name;
+            const songName = data.items[i].track.name;
+            $('#queue').append(
+                `<div class="col-12 shadow-sm p-2 mb-1 bg-white"style="padding: 0px; margin: 0px">
+                <div style="margin:0px; padding:0px">${songName} - ${name}</div>
+                </div>`
+            );
+          }
+        });
+      });
+    });
+
+    $(document).on("keypress", "#search-input", function(e) {
+      if (e.which == 13) {
+          $('#search-btn').click();
+      }
+    });
     $(window).on('beforeunload ',function() {
       $.ajax({
           type: "POST",
@@ -40,21 +177,60 @@
           async: false,
       });
     });
-
     $("#play-btn").click(function() {
       $.ajax({
         url: 'host/play',
-        type: 'PUT',
-        data:'roomId=<%= roomId %>'
+        type: 'POST',
+        data: {roomId: '<%= roomId %>'}
       });
     });
-
     $("#pause-btn").click(function() {
       $.ajax({
         url: 'host/pause',
         type: 'PUT',
         data:'roomId=<%= roomId %>'
       });
+    });
+    $("#previous-btn").click(function() {
+      player.previousTrack().then(() => {
+        console.log('Previous Song!');
+      });
+    });
+    $("#next-btn").click(function() {
+      player.nextTrack().then(() => {
+        console.log('Next Song!');
+      });
+    });
+    $("#test-btn").click(function() {
+      $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
+        console.log(data);
+        $('#userCount').text(data);
+      });
+      $.post("/host/getQueue", {roomId: '<%= roomId %>'}, function(data) {
+        console.log("I got the Queue")
+        console.log(data.items)
+        $('#queue').replaceWith(`<div id="queue" class="row"></div>`);
+        for(i = 0;i<data.items.length;i++){
+          console.log(data.items[i].track.artists[0].name)
+          console.log(data.items[i].track.name)
+          const name = data.items[i].track.artists[0].name;
+          const songName = data.items[i].track.name;
+          $('#queue').append(
+              `<div class="col-12 shadow-sm p-2 mb-1 bg-white"style="padding: -10px; margin: 0px">
+              <div style="margin:0px">${songName} - ${name}</div>
+              </div>`
+          );
+        }
+
+        console.log(data.items.length)
+        //test = JSON.stringify(data.items[0].name);
+        //console.log(test)
+      });
+
+     // $("#test-btn").click(function() {
+       $.post("/host/getUserCount", {roomId: '<%= roomId %>'}, function(data) {
+       });
+     // });
     });
   })(jQuery);
   </script>

@@ -6,26 +6,38 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
   <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <link href="custom.css" rel="stylesheet" type="text/css">
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
 </head>
-<body>
-  <div class="container">
-  	<div class="row">
-  	    <div class="col-12"><h1><a href="." style="color: #84bd00; text-decoration: none;">Groupify</a><h1></div>
-        <div class="input-group-append">
-          <div class="col-12">
-        	    <div id="custom-search-input">
-                  <div class="input-group">
-                      <input id="search-input" type="text" class="search-query form-control" placeholder="Room Code" />
-                      <div class="input-group-append">
-                        <button id="join-btn" class="btn btn-outline-secondary" type="button">Join Room</button>
-                      </div>
-                  </div>
-              </div>
-          </div>
-          <button id="host-btn" class="btn btn-outline-secondary" type="button">Create Room</button>
+<body style="background-color: #222326">
+  <div class="container" style="padding-top: 175px">
+    <div class="row justify-content-center">
+        <div class="col-12" style="padding-bottom: 50px">
+          <p style="text-align: center">
+            <a href="." style="color: #1ED760; text-decoration: none; font-size: 66px;">
+                Groupify
+            </a>
+          </p>
         </div>
-  	</div>
+        <div class="col-12 text-center" style="padding-bottom: 25px">
+          <button id="host-btn"
+          class="btn btn-outline-secondary"
+          style="color: #4CFF8D; border-color: #4CFF8D"
+          type="button">Create Room</button>
+        </div>
+        <div id="custom-search-input text-center">
+            <div class="input-group">
+                <input id="search-input" type="text" class="search-query form-control" placeholder="Room Code" />
+                    <div class="input-group-append">
+                        <button
+                        id="join-btn"
+                        class="btn btn-outline-secondary"
+                        style="color: #4CFF8D; border-color: #4CFF8D"
+                        type="button">Join Room</button>
+                    </div>
+            </div>
+        </div>
+    </div>
   </div>
 
 
